@@ -40,7 +40,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 
 # The design that will be created by this Tcl script contains the following 
 # module references:
-# PWM, PWM, PWM, PWM, PWM, PWM, PWM, PWM, PWM, PWM, PWM, PWM, PWM, PWM, PWM, PWM, QEI, QEI, counter
+# DRAM, PWM, PWM, PWM, PWM, PWM, PWM, PWM, PWM, QEI, QEI, counter, debounce_filter, debounce_filter, debounce_filter, debounce_filter, debounce_filter, debounce_filter, debounce_filter, debounce_filter, driver_A4988, pump_driver, valve_driver, ws2812b_controller
 
 # Please add the sources of those modules before sourcing this Tcl script.
 
@@ -158,14 +158,7 @@ xilinx.com:ip:processing_system7:5.5\
 set bCheckModules 1
 if { $bCheckModules == 1 } {
    set list_check_mods "\ 
-PWM\
-PWM\
-PWM\
-PWM\
-PWM\
-PWM\
-PWM\
-PWM\
+DRAM\
 PWM\
 PWM\
 PWM\
@@ -177,6 +170,18 @@ PWM\
 QEI\
 QEI\
 counter\
+debounce_filter\
+debounce_filter\
+debounce_filter\
+debounce_filter\
+debounce_filter\
+debounce_filter\
+debounce_filter\
+debounce_filter\
+driver_A4988\
+pump_driver\
+valve_driver\
+ws2812b_controller\
 "
 
    set list_mods_missing ""
@@ -248,6 +253,14 @@ proc create_root_design { parentCell } {
   set AU [ create_bd_port -dir I -from 0 -to 0 AU ]
   set CAN1_PHY_RX_0 [ create_bd_port -dir I CAN1_PHY_RX_0 ]
   set CAN1_PHY_TX_0 [ create_bd_port -dir O CAN1_PHY_TX_0 ]
+  set DIR_1 [ create_bd_port -dir O DIR_1 ]
+  set ENA_1 [ create_bd_port -dir O ENA_1 ]
+  set IO_1 [ create_bd_port -dir I IO_1 ]
+  set IO_2 [ create_bd_port -dir I IO_2 ]
+  set IO_3 [ create_bd_port -dir I IO_3 ]
+  set MS1 [ create_bd_port -dir O MS1 ]
+  set MS2 [ create_bd_port -dir O MS2 ]
+  set MS3 [ create_bd_port -dir O MS3 ]
   set QEI_1_A [ create_bd_port -dir I QEI_1_A ]
   set QEI_1_B [ create_bd_port -dir I QEI_1_B ]
   set QEI_2_A [ create_bd_port -dir I QEI_2_A ]
@@ -261,18 +274,35 @@ proc create_root_design { parentCell } {
   set SERVO_6 [ create_bd_port -dir O SERVO_6 ]
   set SERVO_7 [ create_bd_port -dir O SERVO_7 ]
   set SERVO_8 [ create_bd_port -dir O SERVO_8 ]
-  set SERVO_9 [ create_bd_port -dir O SERVO_9 ]
-  set SERVO_10 [ create_bd_port -dir O SERVO_10 ]
-  set SERVO_11 [ create_bd_port -dir O SERVO_11 ]
-  set SERVO_12 [ create_bd_port -dir O SERVO_12 ]
-  set SERVO_13 [ create_bd_port -dir O SERVO_13 ]
-  set SERVO_14 [ create_bd_port -dir O SERVO_14 ]
-  set SERVO_15 [ create_bd_port -dir O SERVO_15 ]
-  set SERVO_16 [ create_bd_port -dir O SERVO_16 ]
+  set STEP_1 [ create_bd_port -dir O STEP_1 ]
   set TEAM [ create_bd_port -dir I -from 0 -to 0 TEAM ]
   set TIRETTE [ create_bd_port -dir I -from 0 -to 0 TIRETTE ]
   set TX_LIDAR_1 [ create_bd_port -dir O TX_LIDAR_1 ]
+  set high_switch_elevator [ create_bd_port -dir I high_switch_elevator ]
+  set led_out [ create_bd_port -dir O led_out ]
+  set low_switch_elevator [ create_bd_port -dir I low_switch_elevator ]
+  set o_valve_1_0 [ create_bd_port -dir O o_valve_1_0 ]
+  set o_valve_2_0 [ create_bd_port -dir O o_valve_2_0 ]
+  set o_valve_3_0 [ create_bd_port -dir O o_valve_3_0 ]
+  set o_valve_4_0 [ create_bd_port -dir O o_valve_4_0 ]
+  set pump_1 [ create_bd_port -dir O pump_1 ]
+  set pump_2 [ create_bd_port -dir O pump_2 ]
+  set pump_3 [ create_bd_port -dir O pump_3 ]
+  set pump_4 [ create_bd_port -dir O pump_4 ]
+  set s_axi_aclk_0 [ create_bd_port -dir I -type clk -freq_hz 5e+07 s_axi_aclk_0 ]
+  set s_axi_aresetn_0 [ create_bd_port -dir I -type rst s_axi_aresetn_0 ]
 
+  # Create instance: DRAM_0, and set properties
+  set block_name DRAM
+  set block_cell_name DRAM_0
+  if { [catch {set DRAM_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   } elseif { $DRAM_0 eq "" } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   }
+  
   # Create instance: PWM_0, and set properties
   set block_name PWM
   set block_cell_name PWM_0
@@ -357,94 +387,6 @@ proc create_root_design { parentCell } {
      catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
      return 1
    } elseif { $PWM_7 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
-  
-  # Create instance: PWM_8, and set properties
-  set block_name PWM
-  set block_cell_name PWM_8
-  if { [catch {set PWM_8 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $PWM_8 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
-  
-  # Create instance: PWM_9, and set properties
-  set block_name PWM
-  set block_cell_name PWM_9
-  if { [catch {set PWM_9 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $PWM_9 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
-  
-  # Create instance: PWM_10, and set properties
-  set block_name PWM
-  set block_cell_name PWM_10
-  if { [catch {set PWM_10 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $PWM_10 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
-  
-  # Create instance: PWM_11, and set properties
-  set block_name PWM
-  set block_cell_name PWM_11
-  if { [catch {set PWM_11 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $PWM_11 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
-  
-  # Create instance: PWM_12, and set properties
-  set block_name PWM
-  set block_cell_name PWM_12
-  if { [catch {set PWM_12 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $PWM_12 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
-  
-  # Create instance: PWM_13, and set properties
-  set block_name PWM
-  set block_cell_name PWM_13
-  if { [catch {set PWM_13 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $PWM_13 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
-  
-  # Create instance: PWM_14, and set properties
-  set block_name PWM
-  set block_cell_name PWM_14
-  if { [catch {set PWM_14 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $PWM_14 eq "" } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   }
-  
-  # Create instance: PWM_15, and set properties
-  set block_name PWM
-  set block_cell_name PWM_15
-  if { [catch {set PWM_15 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
-     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
-     return 1
-   } elseif { $PWM_15 eq "" } {
      catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
      return 1
    }
@@ -545,56 +487,57 @@ proc create_root_design { parentCell } {
   set axi_gpio_10 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_10 ]
   set_property -dict [ list \
    CONFIG.C_ALL_OUTPUTS {1} \
-   CONFIG.C_GPIO_WIDTH {8} \
+   CONFIG.C_GPIO_WIDTH {6} \
  ] $axi_gpio_10
 
   # Create instance: axi_gpio_11, and set properties
   set axi_gpio_11 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_11 ]
   set_property -dict [ list \
    CONFIG.C_ALL_OUTPUTS {1} \
-   CONFIG.C_GPIO_WIDTH {8} \
+   CONFIG.C_GPIO_WIDTH {16} \
  ] $axi_gpio_11
 
   # Create instance: axi_gpio_12, and set properties
   set axi_gpio_12 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_12 ]
   set_property -dict [ list \
    CONFIG.C_ALL_OUTPUTS {1} \
-   CONFIG.C_GPIO_WIDTH {8} \
+   CONFIG.C_GPIO_WIDTH {16} \
  ] $axi_gpio_12
 
   # Create instance: axi_gpio_13, and set properties
   set axi_gpio_13 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_13 ]
   set_property -dict [ list \
    CONFIG.C_ALL_OUTPUTS {1} \
-   CONFIG.C_GPIO_WIDTH {8} \
+   CONFIG.C_GPIO_WIDTH {3} \
  ] $axi_gpio_13
 
   # Create instance: axi_gpio_14, and set properties
   set axi_gpio_14 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_14 ]
   set_property -dict [ list \
    CONFIG.C_ALL_OUTPUTS {1} \
-   CONFIG.C_GPIO_WIDTH {8} \
+   CONFIG.C_GPIO_WIDTH {1} \
  ] $axi_gpio_14
 
   # Create instance: axi_gpio_15, and set properties
   set axi_gpio_15 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_15 ]
   set_property -dict [ list \
    CONFIG.C_ALL_OUTPUTS {1} \
-   CONFIG.C_GPIO_WIDTH {8} \
+   CONFIG.C_GPIO_WIDTH {1} \
  ] $axi_gpio_15
 
   # Create instance: axi_gpio_16, and set properties
   set axi_gpio_16 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_16 ]
   set_property -dict [ list \
-   CONFIG.C_ALL_OUTPUTS {1} \
-   CONFIG.C_GPIO_WIDTH {8} \
+   CONFIG.C_ALL_INPUTS {1} \
+   CONFIG.C_ALL_OUTPUTS {0} \
+   CONFIG.C_GPIO_WIDTH {1} \
  ] $axi_gpio_16
 
   # Create instance: axi_gpio_17, and set properties
   set axi_gpio_17 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_17 ]
   set_property -dict [ list \
    CONFIG.C_ALL_OUTPUTS {1} \
-   CONFIG.C_GPIO_WIDTH {8} \
+   CONFIG.C_GPIO_WIDTH {4} \
  ] $axi_gpio_17
 
   # Create instance: axi_gpio_18, and set properties
@@ -621,10 +564,68 @@ proc create_root_design { parentCell } {
    CONFIG.C_GPIO_WIDTH {1} \
  ] $axi_gpio_20
 
+  # Create instance: axi_gpio_21, and set properties
+  set axi_gpio_21 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_21 ]
+  set_property -dict [ list \
+   CONFIG.C_ALL_INPUTS {1} \
+   CONFIG.C_ALL_OUTPUTS {0} \
+   CONFIG.C_GPIO_WIDTH {1} \
+ ] $axi_gpio_21
+
+  # Create instance: axi_gpio_22, and set properties
+  set axi_gpio_22 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_22 ]
+  set_property -dict [ list \
+   CONFIG.C_ALL_INPUTS {1} \
+   CONFIG.C_ALL_OUTPUTS {0} \
+   CONFIG.C_GPIO_WIDTH {1} \
+ ] $axi_gpio_22
+
+  # Create instance: axi_gpio_23, and set properties
+  set axi_gpio_23 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_23 ]
+  set_property -dict [ list \
+   CONFIG.C_ALL_INPUTS {1} \
+   CONFIG.C_ALL_OUTPUTS {0} \
+   CONFIG.C_GPIO_WIDTH {1} \
+ ] $axi_gpio_23
+
+  # Create instance: axi_gpio_24, and set properties
+  set axi_gpio_24 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_24 ]
+  set_property -dict [ list \
+   CONFIG.C_ALL_INPUTS {1} \
+   CONFIG.C_ALL_OUTPUTS {0} \
+   CONFIG.C_GPIO_WIDTH {1} \
+ ] $axi_gpio_24
+
+  # Create instance: axi_gpio_25, and set properties
+  set axi_gpio_25 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_25 ]
+  set_property -dict [ list \
+   CONFIG.C_ALL_INPUTS {0} \
+   CONFIG.C_ALL_OUTPUTS {1} \
+   CONFIG.C_GPIO_WIDTH {24} \
+   CONFIG.C_IS_DUAL {0} \
+ ] $axi_gpio_25
+
+  # Create instance: axi_gpio_26, and set properties
+  set axi_gpio_26 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_26 ]
+  set_property -dict [ list \
+   CONFIG.C_ALL_INPUTS {0} \
+   CONFIG.C_ALL_OUTPUTS {1} \
+   CONFIG.C_GPIO_WIDTH {6} \
+   CONFIG.C_IS_DUAL {0} \
+ ] $axi_gpio_26
+
+  # Create instance: axi_gpio_27, and set properties
+  set axi_gpio_27 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_27 ]
+  set_property -dict [ list \
+   CONFIG.C_ALL_INPUTS {1} \
+   CONFIG.C_ALL_OUTPUTS {0} \
+   CONFIG.C_GPIO_WIDTH {1} \
+ ] $axi_gpio_27
+
   # Create instance: axi_interconnect_0, and set properties
   set axi_interconnect_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 axi_interconnect_0 ]
   set_property -dict [ list \
-   CONFIG.NUM_MI {21} \
+   CONFIG.NUM_MI {28} \
  ] $axi_interconnect_0
 
   # Create instance: counter_0, and set properties
@@ -634,6 +635,105 @@ proc create_root_design { parentCell } {
      catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
      return 1
    } elseif { $counter_0 eq "" } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   }
+  
+  # Create instance: debounce_filter_0, and set properties
+  set block_name debounce_filter
+  set block_cell_name debounce_filter_0
+  if { [catch {set debounce_filter_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   } elseif { $debounce_filter_0 eq "" } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   }
+  
+  # Create instance: debounce_filter_1, and set properties
+  set block_name debounce_filter
+  set block_cell_name debounce_filter_1
+  if { [catch {set debounce_filter_1 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   } elseif { $debounce_filter_1 eq "" } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   }
+  
+  # Create instance: debounce_filter_2, and set properties
+  set block_name debounce_filter
+  set block_cell_name debounce_filter_2
+  if { [catch {set debounce_filter_2 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   } elseif { $debounce_filter_2 eq "" } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   }
+  
+  # Create instance: debounce_filter_3, and set properties
+  set block_name debounce_filter
+  set block_cell_name debounce_filter_3
+  if { [catch {set debounce_filter_3 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   } elseif { $debounce_filter_3 eq "" } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   }
+  
+  # Create instance: debounce_filter_4, and set properties
+  set block_name debounce_filter
+  set block_cell_name debounce_filter_4
+  if { [catch {set debounce_filter_4 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   } elseif { $debounce_filter_4 eq "" } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   }
+  
+  # Create instance: debounce_filter_5, and set properties
+  set block_name debounce_filter
+  set block_cell_name debounce_filter_5
+  if { [catch {set debounce_filter_5 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   } elseif { $debounce_filter_5 eq "" } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   }
+  
+  # Create instance: debounce_filter_6, and set properties
+  set block_name debounce_filter
+  set block_cell_name debounce_filter_6
+  if { [catch {set debounce_filter_6 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   } elseif { $debounce_filter_6 eq "" } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   }
+  
+  # Create instance: debounce_filter_7, and set properties
+  set block_name debounce_filter
+  set block_cell_name debounce_filter_7
+  if { [catch {set debounce_filter_7 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   } elseif { $debounce_filter_7 eq "" } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   }
+  
+  # Create instance: driver_A4988_0, and set properties
+  set block_name driver_A4988
+  set block_cell_name driver_A4988_0
+  if { [catch {set driver_A4988_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   } elseif { $driver_A4988_0 eq "" } {
      catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
      return 1
    }
@@ -940,8 +1040,8 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_MIO_9_IOTYPE {LVCMOS 3.3V} \
    CONFIG.PCW_MIO_9_PULLUP {enabled} \
    CONFIG.PCW_MIO_9_SLEW {slow} \
-   CONFIG.PCW_MIO_TREE_PERIPHERALS {GPIO#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#UART 0#UART 0#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#SD 0#SD 0#SD 0#SD 0#SD 0#SD 0#GPIO#GPIO#UART 1#UART 1#GPIO#GPIO#GPIO#GPIO} \
-   CONFIG.PCW_MIO_TREE_SIGNALS {gpio[0]#qspi0_ss_b#qspi0_io[0]#qspi0_io[1]#qspi0_io[2]#qspi0_io[3]/HOLD_B#qspi0_sclk#gpio[7]#gpio[8]#gpio[9]#gpio[10]#gpio[11]#gpio[12]#gpio[13]#rx#tx#gpio[16]#gpio[17]#gpio[18]#gpio[19]#gpio[20]#gpio[21]#gpio[22]#gpio[23]#gpio[24]#gpio[25]#gpio[26]#gpio[27]#gpio[28]#gpio[29]#gpio[30]#gpio[31]#gpio[32]#gpio[33]#gpio[34]#gpio[35]#gpio[36]#gpio[37]#gpio[38]#gpio[39]#clk#cmd#data[0]#data[1]#data[2]#data[3]#gpio[46]#gpio[47]#tx#rx#gpio[50]#gpio[51]#gpio[52]#gpio[53]} \
+   CONFIG.PCW_MIO_TREE_PERIPHERALS {GPIO#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#UART 0#UART 0#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#SD 0#SD 0#SD 0#SD 0#SD 0#SD 0#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO} \
+   CONFIG.PCW_MIO_TREE_SIGNALS {gpio[0]#qspi0_ss_b#qspi0_io[0]#qspi0_io[1]#qspi0_io[2]#qspi0_io[3]/HOLD_B#qspi0_sclk#gpio[7]#gpio[8]#gpio[9]#gpio[10]#gpio[11]#gpio[12]#gpio[13]#rx#tx#gpio[16]#gpio[17]#gpio[18]#gpio[19]#gpio[20]#gpio[21]#gpio[22]#gpio[23]#gpio[24]#gpio[25]#gpio[26]#gpio[27]#gpio[28]#gpio[29]#gpio[30]#gpio[31]#gpio[32]#gpio[33]#gpio[34]#gpio[35]#gpio[36]#gpio[37]#gpio[38]#gpio[39]#clk#cmd#data[0]#data[1]#data[2]#data[3]#gpio[46]#gpio[47]#gpio[48]#gpio[49]#gpio[50]#gpio[51]#gpio[52]#gpio[53]} \
    CONFIG.PCW_NAND_GRP_D8_ENABLE {0} \
    CONFIG.PCW_NAND_PERIPHERAL_ENABLE {0} \
    CONFIG.PCW_NOR_GRP_A25_ENABLE {0} \
@@ -1004,6 +1104,39 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_USB_RESET_ENABLE {1} \
  ] $processing_system7_0
 
+  # Create instance: pump_driver_0, and set properties
+  set block_name pump_driver
+  set block_cell_name pump_driver_0
+  if { [catch {set pump_driver_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   } elseif { $pump_driver_0 eq "" } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   }
+  
+  # Create instance: valve_driver_0, and set properties
+  set block_name valve_driver
+  set block_cell_name valve_driver_0
+  if { [catch {set valve_driver_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   } elseif { $valve_driver_0 eq "" } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   }
+  
+  # Create instance: ws2812b_controller_0, and set properties
+  set block_name ws2812b_controller
+  set block_cell_name ws2812b_controller_0
+  if { [catch {set ws2812b_controller_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2095 -severity "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   } elseif { $ws2812b_controller_0 eq "" } {
+     catch {common::send_gid_msg -ssname BD::TCL -id 2096 -severity "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   }
+  
   # Create interface connections
   connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins axi_gpio_0/S_AXI] [get_bd_intf_pins axi_interconnect_0/M00_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_pins axi_gpio_1/S_AXI] [get_bd_intf_pins axi_interconnect_0/M01_AXI]
@@ -1022,28 +1155,31 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net axi_interconnect_0_M14_AXI [get_bd_intf_pins axi_gpio_14/S_AXI] [get_bd_intf_pins axi_interconnect_0/M14_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_0_M15_AXI [get_bd_intf_pins axi_gpio_15/S_AXI] [get_bd_intf_pins axi_interconnect_0/M15_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_0_M16_AXI [get_bd_intf_pins axi_gpio_16/S_AXI] [get_bd_intf_pins axi_interconnect_0/M16_AXI]
-  connect_bd_intf_net -intf_net axi_interconnect_0_M17_AXI [get_bd_intf_pins axi_gpio_17/S_AXI] [get_bd_intf_pins axi_interconnect_0/M17_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M17_AXI [get_bd_intf_pins axi_gpio_26/S_AXI] [get_bd_intf_pins axi_interconnect_0/M17_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_0_M18_AXI [get_bd_intf_pins axi_gpio_18/S_AXI] [get_bd_intf_pins axi_interconnect_0/M18_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_0_M19_AXI [get_bd_intf_pins axi_gpio_19/S_AXI] [get_bd_intf_pins axi_interconnect_0/M19_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_0_M20_AXI [get_bd_intf_pins axi_gpio_20/S_AXI] [get_bd_intf_pins axi_interconnect_0/M20_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M21_AXI [get_bd_intf_pins axi_gpio_21/S_AXI] [get_bd_intf_pins axi_interconnect_0/M21_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M22_AXI [get_bd_intf_pins axi_gpio_22/S_AXI] [get_bd_intf_pins axi_interconnect_0/M22_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M23_AXI [get_bd_intf_pins axi_gpio_23/S_AXI] [get_bd_intf_pins axi_interconnect_0/M23_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M24_AXI [get_bd_intf_pins axi_gpio_24/S_AXI] [get_bd_intf_pins axi_interconnect_0/M24_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M25_AXI [get_bd_intf_pins axi_gpio_25/S_AXI] [get_bd_intf_pins axi_interconnect_0/M25_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M26_AXI [get_bd_intf_pins axi_gpio_27/S_AXI] [get_bd_intf_pins axi_interconnect_0/M26_AXI]
+  connect_bd_intf_net -intf_net axi_interconnect_0_M27_AXI [get_bd_intf_pins axi_gpio_17/S_AXI] [get_bd_intf_pins axi_interconnect_0/M27_AXI]
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports DDR] [get_bd_intf_pins processing_system7_0/DDR]
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins processing_system7_0/FIXED_IO]
   connect_bd_intf_net -intf_net processing_system7_0_M_AXI_GP0 [get_bd_intf_pins axi_interconnect_0/S00_AXI] [get_bd_intf_pins processing_system7_0/M_AXI_GP0]
 
   # Create port connections
+  connect_bd_net -net AU_1 [get_bd_ports AU] [get_bd_pins debounce_filter_1/btn_raw]
   connect_bd_net -net A_i_0_1 [get_bd_ports QEI_2_A] [get_bd_pins QEI_1/A_i]
   connect_bd_net -net A_i_1_1 [get_bd_ports QEI_1_A] [get_bd_pins QEI_0/A_i]
   connect_bd_net -net B_i_0_1 [get_bd_ports QEI_2_B] [get_bd_pins QEI_1/B_i]
   connect_bd_net -net B_i_1_1 [get_bd_ports QEI_1_B] [get_bd_pins QEI_0/B_i]
   connect_bd_net -net CAN1_PHY_RX_0_1 [get_bd_ports CAN1_PHY_RX_0] [get_bd_pins processing_system7_0/CAN1_PHY_RX]
-  connect_bd_net -net Net [get_bd_pins PWM_0/counter_20ms] [get_bd_pins PWM_1/counter_20ms] [get_bd_pins PWM_10/counter_20ms] [get_bd_pins PWM_11/counter_20ms] [get_bd_pins PWM_12/counter_20ms] [get_bd_pins PWM_13/counter_20ms] [get_bd_pins PWM_14/counter_20ms] [get_bd_pins PWM_15/counter_20ms] [get_bd_pins PWM_2/counter_20ms] [get_bd_pins PWM_3/counter_20ms] [get_bd_pins PWM_4/counter_20ms] [get_bd_pins PWM_5/counter_20ms] [get_bd_pins PWM_6/counter_20ms] [get_bd_pins PWM_7/counter_20ms] [get_bd_pins PWM_8/counter_20ms] [get_bd_pins PWM_9/counter_20ms] [get_bd_pins counter_0/counter_20ms]
+  connect_bd_net -net DRAM_0_led_data [get_bd_pins DRAM_0/led_data] [get_bd_pins ws2812b_controller_0/i_pixData]
+  connect_bd_net -net Net [get_bd_pins PWM_0/counter_20ms] [get_bd_pins PWM_1/counter_20ms] [get_bd_pins PWM_2/counter_20ms] [get_bd_pins PWM_3/counter_20ms] [get_bd_pins PWM_4/counter_20ms] [get_bd_pins PWM_5/counter_20ms] [get_bd_pins PWM_6/counter_20ms] [get_bd_pins PWM_7/counter_20ms] [get_bd_pins counter_0/counter_20ms]
   connect_bd_net -net PWM_0_pwm_out [get_bd_ports SERVO_1] [get_bd_pins PWM_0/pwm_out]
-  connect_bd_net -net PWM_10_pwm_out [get_bd_ports SERVO_11] [get_bd_pins PWM_10/pwm_out]
-  connect_bd_net -net PWM_11_pwm_out [get_bd_ports SERVO_12] [get_bd_pins PWM_11/pwm_out]
-  connect_bd_net -net PWM_12_pwm_out [get_bd_ports SERVO_13] [get_bd_pins PWM_12/pwm_out]
-  connect_bd_net -net PWM_13_pwm_out [get_bd_ports SERVO_14] [get_bd_pins PWM_13/pwm_out]
-  connect_bd_net -net PWM_14_pwm_out [get_bd_ports SERVO_15] [get_bd_pins PWM_14/pwm_out]
-  connect_bd_net -net PWM_15_pwm_out [get_bd_ports SERVO_16] [get_bd_pins PWM_15/pwm_out]
   connect_bd_net -net PWM_1_pwm_out [get_bd_ports SERVO_2] [get_bd_pins PWM_1/pwm_out]
   connect_bd_net -net PWM_2_pwm_out [get_bd_ports SERVO_3] [get_bd_pins PWM_2/pwm_out]
   connect_bd_net -net PWM_3_pwm_out [get_bd_ports SERVO_4] [get_bd_pins PWM_3/pwm_out]
@@ -1051,19 +1187,20 @@ proc create_root_design { parentCell } {
   connect_bd_net -net PWM_5_pwm_out [get_bd_ports SERVO_6] [get_bd_pins PWM_5/pwm_out]
   connect_bd_net -net PWM_6_pwm_out [get_bd_ports SERVO_7] [get_bd_pins PWM_6/pwm_out]
   connect_bd_net -net PWM_7_pwm_out [get_bd_ports SERVO_8] [get_bd_pins PWM_7/pwm_out]
-  connect_bd_net -net PWM_8_pwm_out [get_bd_ports SERVO_9] [get_bd_pins PWM_8/pwm_out]
-  connect_bd_net -net PWM_9_pwm_out [get_bd_ports SERVO_10] [get_bd_pins PWM_9/pwm_out]
   connect_bd_net -net QEI_0_position_o [get_bd_pins QEI_0/position_o] [get_bd_pins axi_gpio_0/gpio_io_i]
   connect_bd_net -net QEI_1_position_o [get_bd_pins QEI_1/position_o] [get_bd_pins axi_gpio_1/gpio_io_i]
+  connect_bd_net -net TEAM_1 [get_bd_ports TEAM] [get_bd_pins debounce_filter_2/btn_raw]
+  connect_bd_net -net TIRETTE_1 [get_bd_ports TIRETTE] [get_bd_pins debounce_filter_0/btn_raw]
   connect_bd_net -net UART1_RX_0_1 [get_bd_ports RX_LIDAR_1] [get_bd_pins processing_system7_0/UART1_RX]
-  connect_bd_net -net axi_gpio_10_gpio_io_o [get_bd_pins PWM_8/angle] [get_bd_pins axi_gpio_10/gpio_io_o]
-  connect_bd_net -net axi_gpio_11_gpio_io_o [get_bd_pins PWM_9/angle] [get_bd_pins axi_gpio_11/gpio_io_o]
-  connect_bd_net -net axi_gpio_12_gpio_io_o [get_bd_pins PWM_10/angle] [get_bd_pins axi_gpio_12/gpio_io_o]
-  connect_bd_net -net axi_gpio_13_gpio_io_o [get_bd_pins PWM_11/angle] [get_bd_pins axi_gpio_13/gpio_io_o]
-  connect_bd_net -net axi_gpio_14_gpio_io_o [get_bd_pins PWM_12/angle] [get_bd_pins axi_gpio_14/gpio_io_o]
-  connect_bd_net -net axi_gpio_15_gpio_io_o [get_bd_pins PWM_13/angle] [get_bd_pins axi_gpio_15/gpio_io_o]
-  connect_bd_net -net axi_gpio_16_gpio_io_o [get_bd_pins PWM_14/angle] [get_bd_pins axi_gpio_16/gpio_io_o]
-  connect_bd_net -net axi_gpio_17_gpio_io_o [get_bd_pins PWM_15/angle] [get_bd_pins axi_gpio_17/gpio_io_o]
+  connect_bd_net -net axi_gpio_10_gpio_io_o [get_bd_pins axi_gpio_10/gpio_io_o] [get_bd_pins pump_driver_0/i_pump]
+  connect_bd_net -net axi_gpio_11_gpio_io_o [get_bd_pins axi_gpio_11/gpio_io_o] [get_bd_pins driver_A4988_0/i_step]
+  connect_bd_net -net axi_gpio_12_gpio_io_o [get_bd_pins axi_gpio_12/gpio_io_o] [get_bd_pins driver_A4988_0/i_speed]
+  connect_bd_net -net axi_gpio_13_gpio_io_o [get_bd_pins axi_gpio_13/gpio_io_o] [get_bd_pins driver_A4988_0/i_mode]
+  connect_bd_net -net axi_gpio_14_gpio_io_o [get_bd_pins axi_gpio_14/gpio_io_o] [get_bd_pins driver_A4988_0/i_dir]
+  connect_bd_net -net axi_gpio_15_gpio_io_o [get_bd_pins axi_gpio_15/gpio_io_o] [get_bd_pins driver_A4988_0/i_ena]
+  connect_bd_net -net axi_gpio_17_gpio_io_o [get_bd_pins axi_gpio_17/gpio_io_o] [get_bd_pins valve_driver_0/i_valve]
+  connect_bd_net -net axi_gpio_25_gpio_io_o [get_bd_pins DRAM_0/axi_data] [get_bd_pins axi_gpio_25/gpio_io_o]
+  connect_bd_net -net axi_gpio_26_gpio_io_o [get_bd_pins DRAM_0/axi_addr] [get_bd_pins axi_gpio_26/gpio_io_o]
   connect_bd_net -net axi_gpio_2_gpio_io_o [get_bd_pins PWM_0/angle] [get_bd_pins axi_gpio_2/gpio_io_o]
   connect_bd_net -net axi_gpio_3_gpio_io_o [get_bd_pins PWM_1/angle] [get_bd_pins axi_gpio_3/gpio_io_o]
   connect_bd_net -net axi_gpio_4_gpio_io_o [get_bd_pins PWM_2/angle] [get_bd_pins axi_gpio_4/gpio_io_o]
@@ -1072,14 +1209,41 @@ proc create_root_design { parentCell } {
   connect_bd_net -net axi_gpio_7_gpio_io_o [get_bd_pins PWM_5/angle] [get_bd_pins axi_gpio_7/gpio_io_o]
   connect_bd_net -net axi_gpio_8_gpio_io_o [get_bd_pins PWM_6/angle] [get_bd_pins axi_gpio_8/gpio_io_o]
   connect_bd_net -net axi_gpio_9_gpio_io_o [get_bd_pins PWM_7/angle] [get_bd_pins axi_gpio_9/gpio_io_o]
-  connect_bd_net -net gpio_io_i_0_1 [get_bd_ports AU] [get_bd_pins axi_gpio_18/gpio_io_i]
-  connect_bd_net -net gpio_io_i_0_2 [get_bd_ports TEAM] [get_bd_pins axi_gpio_19/gpio_io_i]
-  connect_bd_net -net gpio_io_i_0_3 [get_bd_ports TIRETTE] [get_bd_pins axi_gpio_20/gpio_io_i]
-  connect_bd_net -net proc_sys_reset_0_peripheral_aresetn [get_bd_pins PWM_0/reset] [get_bd_pins PWM_1/reset] [get_bd_pins PWM_10/reset] [get_bd_pins PWM_11/reset] [get_bd_pins PWM_12/reset] [get_bd_pins PWM_13/reset] [get_bd_pins PWM_14/reset] [get_bd_pins PWM_15/reset] [get_bd_pins PWM_2/reset] [get_bd_pins PWM_3/reset] [get_bd_pins PWM_4/reset] [get_bd_pins PWM_5/reset] [get_bd_pins PWM_6/reset] [get_bd_pins PWM_7/reset] [get_bd_pins PWM_8/reset] [get_bd_pins PWM_9/reset] [get_bd_pins QEI_0/rst] [get_bd_pins QEI_1/rst] [get_bd_pins axi_gpio_0/s_axi_aresetn] [get_bd_pins axi_gpio_1/s_axi_aresetn] [get_bd_pins axi_gpio_10/s_axi_aresetn] [get_bd_pins axi_gpio_11/s_axi_aresetn] [get_bd_pins axi_gpio_12/s_axi_aresetn] [get_bd_pins axi_gpio_13/s_axi_aresetn] [get_bd_pins axi_gpio_14/s_axi_aresetn] [get_bd_pins axi_gpio_15/s_axi_aresetn] [get_bd_pins axi_gpio_16/s_axi_aresetn] [get_bd_pins axi_gpio_17/s_axi_aresetn] [get_bd_pins axi_gpio_18/s_axi_aresetn] [get_bd_pins axi_gpio_19/s_axi_aresetn] [get_bd_pins axi_gpio_2/s_axi_aresetn] [get_bd_pins axi_gpio_20/s_axi_aresetn] [get_bd_pins axi_gpio_3/s_axi_aresetn] [get_bd_pins axi_gpio_4/s_axi_aresetn] [get_bd_pins axi_gpio_5/s_axi_aresetn] [get_bd_pins axi_gpio_6/s_axi_aresetn] [get_bd_pins axi_gpio_7/s_axi_aresetn] [get_bd_pins axi_gpio_8/s_axi_aresetn] [get_bd_pins axi_gpio_9/s_axi_aresetn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/M02_ARESETN] [get_bd_pins axi_interconnect_0/M03_ARESETN] [get_bd_pins axi_interconnect_0/M04_ARESETN] [get_bd_pins axi_interconnect_0/M05_ARESETN] [get_bd_pins axi_interconnect_0/M06_ARESETN] [get_bd_pins axi_interconnect_0/M07_ARESETN] [get_bd_pins axi_interconnect_0/M08_ARESETN] [get_bd_pins axi_interconnect_0/M09_ARESETN] [get_bd_pins axi_interconnect_0/M10_ARESETN] [get_bd_pins axi_interconnect_0/M11_ARESETN] [get_bd_pins axi_interconnect_0/M12_ARESETN] [get_bd_pins axi_interconnect_0/M13_ARESETN] [get_bd_pins axi_interconnect_0/M14_ARESETN] [get_bd_pins axi_interconnect_0/M15_ARESETN] [get_bd_pins axi_interconnect_0/M16_ARESETN] [get_bd_pins axi_interconnect_0/M17_ARESETN] [get_bd_pins axi_interconnect_0/M18_ARESETN] [get_bd_pins axi_interconnect_0/M19_ARESETN] [get_bd_pins axi_interconnect_0/M20_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins counter_0/rst] [get_bd_pins proc_sys_reset_0/peripheral_aresetn]
+  connect_bd_net -net btn_raw_0_1 [get_bd_ports IO_1] [get_bd_pins debounce_filter_3/btn_raw]
+  connect_bd_net -net btn_raw_0_2 [get_bd_ports high_switch_elevator] [get_bd_pins debounce_filter_6/btn_raw]
+  connect_bd_net -net btn_raw_1_1 [get_bd_ports IO_2] [get_bd_pins debounce_filter_4/btn_raw]
+  connect_bd_net -net btn_raw_1_2 [get_bd_ports low_switch_elevator] [get_bd_pins debounce_filter_7/btn_raw]
+  connect_bd_net -net btn_raw_2_1 [get_bd_ports IO_3] [get_bd_pins debounce_filter_5/btn_raw]
+  connect_bd_net -net debounce_filter_0_btn_filtered [get_bd_pins axi_gpio_20/gpio_io_i] [get_bd_pins debounce_filter_0/btn_filtered]
+  connect_bd_net -net debounce_filter_1_btn_filtered [get_bd_pins axi_gpio_18/gpio_io_i] [get_bd_pins debounce_filter_1/btn_filtered]
+  connect_bd_net -net debounce_filter_2_btn_filtered [get_bd_pins axi_gpio_19/gpio_io_i] [get_bd_pins debounce_filter_2/btn_filtered]
+  connect_bd_net -net debounce_filter_3_btn_filtered [get_bd_pins axi_gpio_21/gpio_io_i] [get_bd_pins debounce_filter_3/btn_filtered]
+  connect_bd_net -net debounce_filter_4_btn_filtered [get_bd_pins axi_gpio_22/gpio_io_i] [get_bd_pins debounce_filter_4/btn_filtered]
+  connect_bd_net -net debounce_filter_5_btn_filtered [get_bd_pins axi_gpio_23/gpio_io_i] [get_bd_pins debounce_filter_5/btn_filtered]
+  connect_bd_net -net debounce_filter_6_btn_filtered [get_bd_pins axi_gpio_24/gpio_io_i] [get_bd_pins debounce_filter_6/btn_filtered]
+  connect_bd_net -net debounce_filter_7_btn_filtered [get_bd_pins axi_gpio_27/gpio_io_i] [get_bd_pins debounce_filter_7/btn_filtered]
+  connect_bd_net -net driver_A4988_0_o_DIR [get_bd_ports DIR_1] [get_bd_pins driver_A4988_0/o_DIR]
+  connect_bd_net -net driver_A4988_0_o_ENA [get_bd_ports ENA_1] [get_bd_pins driver_A4988_0/o_ENA]
+  connect_bd_net -net driver_A4988_0_o_MS1 [get_bd_ports MS1] [get_bd_pins driver_A4988_0/o_MS1]
+  connect_bd_net -net driver_A4988_0_o_MS2 [get_bd_ports MS2] [get_bd_pins driver_A4988_0/o_MS2]
+  connect_bd_net -net driver_A4988_0_o_MS3 [get_bd_ports MS3] [get_bd_pins driver_A4988_0/o_MS3]
+  connect_bd_net -net driver_A4988_0_o_STEP [get_bd_ports STEP_1] [get_bd_pins driver_A4988_0/o_STEP]
+  connect_bd_net -net driver_A4988_0_o_done [get_bd_pins axi_gpio_16/gpio_io_i] [get_bd_pins driver_A4988_0/o_done]
+  connect_bd_net -net proc_sys_reset_0_peripheral_aresetn [get_bd_pins DRAM_0/rst_n] [get_bd_pins PWM_0/reset] [get_bd_pins PWM_1/reset] [get_bd_pins PWM_2/reset] [get_bd_pins PWM_3/reset] [get_bd_pins PWM_4/reset] [get_bd_pins PWM_5/reset] [get_bd_pins PWM_6/reset] [get_bd_pins PWM_7/reset] [get_bd_pins QEI_0/rst] [get_bd_pins QEI_1/rst] [get_bd_pins axi_gpio_0/s_axi_aresetn] [get_bd_pins axi_gpio_1/s_axi_aresetn] [get_bd_pins axi_gpio_10/s_axi_aresetn] [get_bd_pins axi_gpio_11/s_axi_aresetn] [get_bd_pins axi_gpio_12/s_axi_aresetn] [get_bd_pins axi_gpio_13/s_axi_aresetn] [get_bd_pins axi_gpio_14/s_axi_aresetn] [get_bd_pins axi_gpio_15/s_axi_aresetn] [get_bd_pins axi_gpio_16/s_axi_aresetn] [get_bd_pins axi_gpio_17/s_axi_aresetn] [get_bd_pins axi_gpio_18/s_axi_aresetn] [get_bd_pins axi_gpio_19/s_axi_aresetn] [get_bd_pins axi_gpio_2/s_axi_aresetn] [get_bd_pins axi_gpio_20/s_axi_aresetn] [get_bd_pins axi_gpio_21/s_axi_aresetn] [get_bd_pins axi_gpio_22/s_axi_aresetn] [get_bd_pins axi_gpio_23/s_axi_aresetn] [get_bd_pins axi_gpio_24/s_axi_aresetn] [get_bd_pins axi_gpio_25/s_axi_aresetn] [get_bd_pins axi_gpio_26/s_axi_aresetn] [get_bd_pins axi_gpio_27/s_axi_aresetn] [get_bd_pins axi_gpio_3/s_axi_aresetn] [get_bd_pins axi_gpio_4/s_axi_aresetn] [get_bd_pins axi_gpio_5/s_axi_aresetn] [get_bd_pins axi_gpio_6/s_axi_aresetn] [get_bd_pins axi_gpio_7/s_axi_aresetn] [get_bd_pins axi_gpio_8/s_axi_aresetn] [get_bd_pins axi_gpio_9/s_axi_aresetn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/M02_ARESETN] [get_bd_pins axi_interconnect_0/M03_ARESETN] [get_bd_pins axi_interconnect_0/M04_ARESETN] [get_bd_pins axi_interconnect_0/M05_ARESETN] [get_bd_pins axi_interconnect_0/M06_ARESETN] [get_bd_pins axi_interconnect_0/M07_ARESETN] [get_bd_pins axi_interconnect_0/M08_ARESETN] [get_bd_pins axi_interconnect_0/M09_ARESETN] [get_bd_pins axi_interconnect_0/M10_ARESETN] [get_bd_pins axi_interconnect_0/M11_ARESETN] [get_bd_pins axi_interconnect_0/M12_ARESETN] [get_bd_pins axi_interconnect_0/M13_ARESETN] [get_bd_pins axi_interconnect_0/M14_ARESETN] [get_bd_pins axi_interconnect_0/M15_ARESETN] [get_bd_pins axi_interconnect_0/M16_ARESETN] [get_bd_pins axi_interconnect_0/M17_ARESETN] [get_bd_pins axi_interconnect_0/M18_ARESETN] [get_bd_pins axi_interconnect_0/M19_ARESETN] [get_bd_pins axi_interconnect_0/M20_ARESETN] [get_bd_pins axi_interconnect_0/M21_ARESETN] [get_bd_pins axi_interconnect_0/M22_ARESETN] [get_bd_pins axi_interconnect_0/M23_ARESETN] [get_bd_pins axi_interconnect_0/M24_ARESETN] [get_bd_pins axi_interconnect_0/M25_ARESETN] [get_bd_pins axi_interconnect_0/M26_ARESETN] [get_bd_pins axi_interconnect_0/M27_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins counter_0/rst] [get_bd_pins debounce_filter_0/rst] [get_bd_pins debounce_filter_1/rst] [get_bd_pins debounce_filter_2/rst] [get_bd_pins debounce_filter_3/rst] [get_bd_pins debounce_filter_4/rst] [get_bd_pins debounce_filter_5/rst] [get_bd_pins debounce_filter_6/rst] [get_bd_pins debounce_filter_7/rst] [get_bd_pins driver_A4988_0/rstn] [get_bd_pins proc_sys_reset_0/peripheral_aresetn] [get_bd_pins pump_driver_0/rstn] [get_bd_pins valve_driver_0/rstn] [get_bd_pins ws2812b_controller_0/rstn]
   connect_bd_net -net processing_system7_0_CAN1_PHY_TX [get_bd_ports CAN1_PHY_TX_0] [get_bd_pins processing_system7_0/CAN1_PHY_TX]
-  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins PWM_0/clk] [get_bd_pins PWM_1/clk] [get_bd_pins PWM_10/clk] [get_bd_pins PWM_11/clk] [get_bd_pins PWM_12/clk] [get_bd_pins PWM_13/clk] [get_bd_pins PWM_14/clk] [get_bd_pins PWM_15/clk] [get_bd_pins PWM_2/clk] [get_bd_pins PWM_3/clk] [get_bd_pins PWM_4/clk] [get_bd_pins PWM_5/clk] [get_bd_pins PWM_6/clk] [get_bd_pins PWM_7/clk] [get_bd_pins PWM_8/clk] [get_bd_pins PWM_9/clk] [get_bd_pins QEI_0/clk] [get_bd_pins QEI_1/clk] [get_bd_pins axi_gpio_0/s_axi_aclk] [get_bd_pins axi_gpio_1/s_axi_aclk] [get_bd_pins axi_gpio_10/s_axi_aclk] [get_bd_pins axi_gpio_11/s_axi_aclk] [get_bd_pins axi_gpio_12/s_axi_aclk] [get_bd_pins axi_gpio_13/s_axi_aclk] [get_bd_pins axi_gpio_14/s_axi_aclk] [get_bd_pins axi_gpio_15/s_axi_aclk] [get_bd_pins axi_gpio_16/s_axi_aclk] [get_bd_pins axi_gpio_17/s_axi_aclk] [get_bd_pins axi_gpio_18/s_axi_aclk] [get_bd_pins axi_gpio_19/s_axi_aclk] [get_bd_pins axi_gpio_2/s_axi_aclk] [get_bd_pins axi_gpio_20/s_axi_aclk] [get_bd_pins axi_gpio_3/s_axi_aclk] [get_bd_pins axi_gpio_4/s_axi_aclk] [get_bd_pins axi_gpio_5/s_axi_aclk] [get_bd_pins axi_gpio_6/s_axi_aclk] [get_bd_pins axi_gpio_7/s_axi_aclk] [get_bd_pins axi_gpio_8/s_axi_aclk] [get_bd_pins axi_gpio_9/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/M02_ACLK] [get_bd_pins axi_interconnect_0/M03_ACLK] [get_bd_pins axi_interconnect_0/M04_ACLK] [get_bd_pins axi_interconnect_0/M05_ACLK] [get_bd_pins axi_interconnect_0/M06_ACLK] [get_bd_pins axi_interconnect_0/M07_ACLK] [get_bd_pins axi_interconnect_0/M08_ACLK] [get_bd_pins axi_interconnect_0/M09_ACLK] [get_bd_pins axi_interconnect_0/M10_ACLK] [get_bd_pins axi_interconnect_0/M11_ACLK] [get_bd_pins axi_interconnect_0/M12_ACLK] [get_bd_pins axi_interconnect_0/M13_ACLK] [get_bd_pins axi_interconnect_0/M14_ACLK] [get_bd_pins axi_interconnect_0/M15_ACLK] [get_bd_pins axi_interconnect_0/M16_ACLK] [get_bd_pins axi_interconnect_0/M17_ACLK] [get_bd_pins axi_interconnect_0/M18_ACLK] [get_bd_pins axi_interconnect_0/M19_ACLK] [get_bd_pins axi_interconnect_0/M20_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins counter_0/clk] [get_bd_pins proc_sys_reset_0/slowest_sync_clk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins DRAM_0/clk] [get_bd_pins PWM_0/clk] [get_bd_pins PWM_1/clk] [get_bd_pins PWM_2/clk] [get_bd_pins PWM_3/clk] [get_bd_pins PWM_4/clk] [get_bd_pins PWM_5/clk] [get_bd_pins PWM_6/clk] [get_bd_pins PWM_7/clk] [get_bd_pins QEI_0/clk] [get_bd_pins QEI_1/clk] [get_bd_pins axi_gpio_0/s_axi_aclk] [get_bd_pins axi_gpio_1/s_axi_aclk] [get_bd_pins axi_gpio_10/s_axi_aclk] [get_bd_pins axi_gpio_11/s_axi_aclk] [get_bd_pins axi_gpio_12/s_axi_aclk] [get_bd_pins axi_gpio_13/s_axi_aclk] [get_bd_pins axi_gpio_14/s_axi_aclk] [get_bd_pins axi_gpio_15/s_axi_aclk] [get_bd_pins axi_gpio_16/s_axi_aclk] [get_bd_pins axi_gpio_17/s_axi_aclk] [get_bd_pins axi_gpio_18/s_axi_aclk] [get_bd_pins axi_gpio_19/s_axi_aclk] [get_bd_pins axi_gpio_2/s_axi_aclk] [get_bd_pins axi_gpio_20/s_axi_aclk] [get_bd_pins axi_gpio_21/s_axi_aclk] [get_bd_pins axi_gpio_22/s_axi_aclk] [get_bd_pins axi_gpio_23/s_axi_aclk] [get_bd_pins axi_gpio_24/s_axi_aclk] [get_bd_pins axi_gpio_25/s_axi_aclk] [get_bd_pins axi_gpio_26/s_axi_aclk] [get_bd_pins axi_gpio_27/s_axi_aclk] [get_bd_pins axi_gpio_3/s_axi_aclk] [get_bd_pins axi_gpio_4/s_axi_aclk] [get_bd_pins axi_gpio_5/s_axi_aclk] [get_bd_pins axi_gpio_6/s_axi_aclk] [get_bd_pins axi_gpio_7/s_axi_aclk] [get_bd_pins axi_gpio_8/s_axi_aclk] [get_bd_pins axi_gpio_9/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/M02_ACLK] [get_bd_pins axi_interconnect_0/M03_ACLK] [get_bd_pins axi_interconnect_0/M04_ACLK] [get_bd_pins axi_interconnect_0/M05_ACLK] [get_bd_pins axi_interconnect_0/M06_ACLK] [get_bd_pins axi_interconnect_0/M07_ACLK] [get_bd_pins axi_interconnect_0/M08_ACLK] [get_bd_pins axi_interconnect_0/M09_ACLK] [get_bd_pins axi_interconnect_0/M10_ACLK] [get_bd_pins axi_interconnect_0/M11_ACLK] [get_bd_pins axi_interconnect_0/M12_ACLK] [get_bd_pins axi_interconnect_0/M13_ACLK] [get_bd_pins axi_interconnect_0/M14_ACLK] [get_bd_pins axi_interconnect_0/M15_ACLK] [get_bd_pins axi_interconnect_0/M16_ACLK] [get_bd_pins axi_interconnect_0/M17_ACLK] [get_bd_pins axi_interconnect_0/M18_ACLK] [get_bd_pins axi_interconnect_0/M19_ACLK] [get_bd_pins axi_interconnect_0/M20_ACLK] [get_bd_pins axi_interconnect_0/M21_ACLK] [get_bd_pins axi_interconnect_0/M22_ACLK] [get_bd_pins axi_interconnect_0/M23_ACLK] [get_bd_pins axi_interconnect_0/M24_ACLK] [get_bd_pins axi_interconnect_0/M25_ACLK] [get_bd_pins axi_interconnect_0/M26_ACLK] [get_bd_pins axi_interconnect_0/M27_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins counter_0/clk] [get_bd_pins debounce_filter_0/clk] [get_bd_pins debounce_filter_1/clk] [get_bd_pins debounce_filter_2/clk] [get_bd_pins debounce_filter_3/clk] [get_bd_pins debounce_filter_4/clk] [get_bd_pins debounce_filter_5/clk] [get_bd_pins debounce_filter_6/clk] [get_bd_pins debounce_filter_7/clk] [get_bd_pins driver_A4988_0/clk] [get_bd_pins proc_sys_reset_0/slowest_sync_clk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins pump_driver_0/clk] [get_bd_pins valve_driver_0/clk] [get_bd_pins ws2812b_controller_0/clk]
   connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins proc_sys_reset_0/ext_reset_in] [get_bd_pins processing_system7_0/FCLK_RESET0_N]
   connect_bd_net -net processing_system7_0_UART1_TX [get_bd_ports TX_LIDAR_1] [get_bd_pins processing_system7_0/UART1_TX]
+  connect_bd_net -net pump_driver_0_o_pump_1 [get_bd_ports pump_1] [get_bd_pins pump_driver_0/o_pump_1]
+  connect_bd_net -net pump_driver_0_o_pump_2 [get_bd_ports pump_2] [get_bd_pins pump_driver_0/o_pump_2]
+  connect_bd_net -net pump_driver_0_o_pump_3 [get_bd_ports pump_3] [get_bd_pins pump_driver_0/o_pump_3]
+  connect_bd_net -net pump_driver_0_o_pump_4 [get_bd_ports pump_4] [get_bd_pins pump_driver_0/o_pump_4]
+  connect_bd_net -net valve_driver_0_o_valve_1 [get_bd_ports o_valve_1_0] [get_bd_pins valve_driver_0/o_valve_1]
+  connect_bd_net -net valve_driver_0_o_valve_2 [get_bd_ports o_valve_2_0] [get_bd_pins valve_driver_0/o_valve_2]
+  connect_bd_net -net valve_driver_0_o_valve_3 [get_bd_ports o_valve_3_0] [get_bd_pins valve_driver_0/o_valve_3]
+  connect_bd_net -net valve_driver_0_o_valve_4 [get_bd_ports o_valve_4_0] [get_bd_pins valve_driver_0/o_valve_4]
+  connect_bd_net -net ws2812b_controller_0_led_out [get_bd_ports led_out] [get_bd_pins ws2812b_controller_0/led_out]
+  connect_bd_net -net ws2812b_controller_0_o_led_nbr [get_bd_pins DRAM_0/led_addr] [get_bd_pins ws2812b_controller_0/o_led_nbr]
 
   # Create address segments
   assign_bd_address -offset 0x41200000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_0/S_AXI/Reg] -force
@@ -1090,11 +1254,18 @@ proc create_root_design { parentCell } {
   assign_bd_address -offset 0x412E0000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_14/S_AXI/Reg] -force
   assign_bd_address -offset 0x412F0000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_15/S_AXI/Reg] -force
   assign_bd_address -offset 0x41300000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_16/S_AXI/Reg] -force
-  assign_bd_address -offset 0x41310000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_17/S_AXI/Reg] -force
+  assign_bd_address -offset 0x413B0000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_17/S_AXI/Reg] -force
   assign_bd_address -offset 0x41320000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_18/S_AXI/Reg] -force
   assign_bd_address -offset 0x41330000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_19/S_AXI/Reg] -force
   assign_bd_address -offset 0x41210000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_1/S_AXI/Reg] -force
   assign_bd_address -offset 0x41340000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_20/S_AXI/Reg] -force
+  assign_bd_address -offset 0x41350000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_21/S_AXI/Reg] -force
+  assign_bd_address -offset 0x41360000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_22/S_AXI/Reg] -force
+  assign_bd_address -offset 0x41370000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_23/S_AXI/Reg] -force
+  assign_bd_address -offset 0x41380000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_24/S_AXI/Reg] -force
+  assign_bd_address -offset 0x41390000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_25/S_AXI/Reg] -force
+  assign_bd_address -offset 0x41310000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_26/S_AXI/Reg] -force
+  assign_bd_address -offset 0x413A0000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_27/S_AXI/Reg] -force
   assign_bd_address -offset 0x41220000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_2/S_AXI/Reg] -force
   assign_bd_address -offset 0x41230000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_3/S_AXI/Reg] -force
   assign_bd_address -offset 0x41240000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_4/S_AXI/Reg] -force
