@@ -1,47 +1,49 @@
 # Zynq_HW_Eurobot_2025
-Ce dÈpÙt contient les sources du projet Vivado *Zynq_HW_Eurobot* pour la partie **PL** du SoC Zynq7010.
+Ce d√©p√¥t contient les sources du projet Vivado *Zynq_HW_Eurobot* pour la partie **PL** du SoC Zynq7010.
 
-Son rÙle principal est d'assurer le filtrage des IOs avant leur communication au **PS**.
+Son r√¥le principal est d'assurer le filtrage des IOs avant leur communication au **PS**.
 
-Le dÈpÙt suit l'arborescence suivante : 
-+-- Zynq_HW_Eurobot_2025/
-    +-- cons/                      # Fichiers de contraintes (.xdc)
-    +-- ip/                          # IPs personnalisÈes et configuration d'IPs Xilinx
-    +-- ivv_fpga_cocotb/   # Environnement de test Cocotb
-    +-- rtl/                         # Sources VHDL
-    +-- rebuild.tcl              # Script de reconstruction du projet
+Le d√©p√¥t suit l'arborescence suivante : 
+```text
+|-- Zynq_HW_Eurobot_2025/
+    |-- cons/              # Fichiers de contraintes (.xdc)
+    |-- ip/                # IPs personnalis√©es et configuration d'IPs Xilinx
+    |-- ivv_fpga_cocotb/   # Environnement de test Cocotb
+    |-- rtl/               # Sources VHDL
+    |-- rebuild.tcl        # Script de reconstruction du projet
+```
 
-## PrÈrequis
+## Pr√©requis
 - Vivado 2020.2
 - (Optionnel) Python 3 & Questa Sim (pour les simulations Cocotb)
 
 ## Mise en Place du Projet
-La gÈnÈration du projet est automatisÈe ‡ l'aide du script `rebuild.tcl` ! Pour le gÈnÈrer : 
+La g√©n√©ration du projet est automatis√©e √† l'aide du script `rebuild.tcl` ! Pour le g√©n√©rer : 
 
 1. Ouvrir le **Vivado 2020.2 Tcl Shell** 
-2. Naviguer jusqu'au dossier du dÈpÙt.
+2. Naviguer jusqu'au dossier du d√©p√¥t.
 3. Lancer la commande :  `vivado -source ./rebuild.tcl`
-4. Une fois la gÈnÈration terminÈe, le projet peut Ítre ouvert via `project_1/project_1.xp`
+4. Une fois la g√©n√©ration termin√©e, le projet peut √™tre ouvert via `project_1/project_1.xp`
 
-Je n'ai pas ajoutÈ Vivado ‡ mon $PATH sous Windows, donc je lance la commande ci-dessus ‡ l'aide de l'utilitaire `Vivado 2020.2 Tcl Shell`.
+Je n'ai pas ajout√© Vivado √† mon $PATH sous Windows, donc je lance la commande ci-dessus √† l'aide de l'utilitaire `Vivado 2020.2 Tcl Shell`.
 
-Mise ‡ jour des submodules (VHDL_UART, VHDL_debounce):
+Mise √† jour des submodules (VHDL_UART, VHDL_debounce):
 1. Faire `git submodule init` puis `git submodule update`
 
-## Mise ‡ Jour du Projet
-La gestion du projet est faite ‡ l'aide du script `rebuild.tcl`. Dans le cas ou des sources sont ajoutÈes : nouveau fichier RTL, nouvelle IP, nouvelle simu RTL, il faut mettre ‡ jour ce script.
+## Mise √† Jour du Projet
+La gestion du projet est faite √† l'aide du script `rebuild.tcl`. Dans le cas ou des sources sont ajout√©es : nouveau fichier RTL, nouvelle IP, nouvelle simu RTL, il faut mettre √† jour ce script.
 
 Pour ce faire, depuis la `Tcl Console` de Vivado : 
 - `write_project_tcl -force -paths_relative_to [get_property directory [current_project]] ../rebuild.tcl`
 
-ProblËme potentiel : Si le script ne se gÈnËre pas du tout au bon endroit (C:/AppData par exemple ...), il faut modifier le root du projet sur Vivado : 
+Probl√®me potentiel : Si le script ne se g√©n√®re pas du tout au bon endroit (C:/AppData par exemple ...), il faut modifier le root du projet sur Vivado : 
 - `Tools` -> `Settings...`
 - `Project` -> `Default Project Directory` 
-- SpÈcifier le chemin vers le rÈpertoire `project_1/`
+- Sp√©cifier le chemin vers le r√©pertoire `project_1/`
 
 ## Simulations Cocotb (Work In Progress)
 Un exemple de banc de test utilisant **Cocotb** est disponible.
 
-**!IMPORTANT** Actuellement, le setup repose sur Questa (Altera Starter Edition). Ce simulateur est trËs lourd et sa license est chiante ‡ gÈrer ... Donc je pense passer sur un autre simulateur (GHDL ?) ‡ terme.
+**!IMPORTANT** Actuellement, le setup repose sur Questa (Altera Starter Edition). Ce simulateur est tr√®s lourd et sa license est chiante √† g√©rer ... Donc je pense passer sur un autre simulateur (GHDL ?) √† terme.
 ## Export pour le Software
-AprËs la gÈnÈration du bitstream, il faut d'exporter le matÈriel : `File -> Export -> Export Hardware -> Include Bitstream` pour gÈnÈrer le fichier **.xsa** nÈcessaire au dÈveloppement sur la partie **PS**.
+Apr√®s la g√©n√©ration du bitstream, il faut d'exporter le mat√©riel : `File -> Export -> Export Hardware -> Include Bitstream` pour g√©n√©rer le fichier **.xsa** n√©cessaire au d√©veloppement sur la partie **PS**.
