@@ -2,10 +2,6 @@
 ##	This is an example .gitignore file for Vivado, please treat it as an example as 
 ##	it might not be complete. In addition, XAPP 1165 should be followed.
 #########################################################################################################
-#########
-#Exclude all
-#########
-*
 !*/
 !.gitignore
 ###########################################################################
@@ -69,7 +65,11 @@
 #########
 #Journal - files
 #########
-!*.jou
+*.jou
+*.str
+*.log
+.Xil/
+*.os/
 #########
 #Reports
 #########
@@ -85,9 +85,18 @@
 !*.bmm
 !*.xmp
 
+# Project folder
+project_1/
+*.runs/
+*.gen/
+*.srcs/
+*.hw/
+*.ip_user_files/
+*.cache/
 
-Eurobot_2025.cache/
-Eurobot_2025.hw/
-Eurobot_2025.ip_user_files/
-Eurobot_2025.runs/
-vivado.jou
+# Python
+ivv_fpga_cocotb/.build/
+ivv_fpga_cocotb/__pycache__/
+
+# Bloc Design
+ip/Zynq_block_design/

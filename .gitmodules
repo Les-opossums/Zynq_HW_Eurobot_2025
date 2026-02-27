@@ -1,0 +1,6 @@
+[submodule "rtl/VHDL_debounce"]
+	path = rtl/VHDL_debounce
+	url = git@github.com:Les-opossums/VHDL_debounce.git
+[submodule "rtl/VHDL_UART"]
+	path = rtl/VHDL_UART
+	url = https://github.com/Les-opossums/VHDL_UART.git
