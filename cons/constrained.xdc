@@ -124,8 +124,8 @@ set_property IOSTANDARD LVCMOS33 [get_ports TIRETTE]
 
 
 ############## SPARE_1 ##################
-set_property PACKAGE_PIN H17 [get_ports uart_rx_in_0]
-set_property IOSTANDARD LVCMOS33 [get_ports uart_rx_in_0]
+# set_property PACKAGE_PIN H17 [get_ports uart_rx_in_0]
+# set_property IOSTANDARD LVCMOS33 [get_ports uart_rx_in_0]
 # set_property PACKAGE_PIN D18 [get_ports SPARE1_2]
 # set_property IOSTANDARD LVCMOS33 [get_ports SPARE1_2]
 # set_property PACKAGE_PIN E17 [get_ports SPARE1_3]
