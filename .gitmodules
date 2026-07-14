@@ -7,3 +7,6 @@
 [submodule "rtl/ws2812b_AXI_controller"]
 	path = rtl/ws2812b_AXI_controller
 	url = https://github.com/Les-opossums/ws2812b_AXI_controller.git
+[submodule "rtl/tri_state"]
+	path = rtl/tri_state
+	url = https://github.com/Les-opossums/VHDL_tri_state.git
