@@ -27,16 +27,16 @@
 #
 # 3. The following remote source files that were added to the original project:-
 #
-#    "E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/rtl/VHDL_debounce/src/debounce.vhd"
-#    "E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/ip/Zynq_block_design/hdl/Zynq_block_design_wrapper.vhd"
-#    "E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART/uart_clk_div.vhd"
-#    "E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART/uart_debounce.vhd"
-#    "E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART/uart_parity.vhd"
-#    "E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART/uart_tx.vhd"
-#    "E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART/uart_rx.vhd"
-#    "E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART.vhd"
-#    "E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/rtl/VHDL_debounce/tb/tb_debounce.vhd"
-#    "E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/cons/constrained.xdc"
+#    "$origin_dir/rtl/VHDL_debounce/src/debounce.vhd"
+#    "$origin_dir/ip/Zynq_block_design/hdl/Zynq_block_design_wrapper.vhd"
+#    "$origin_dir/rtl/VHDL_UART/src/UART/uart_clk_div.vhd"
+#    "$origin_dir/rtl/VHDL_UART/src/UART/uart_debounce.vhd"
+#    "$origin_dir/rtl/VHDL_UART/src/UART/uart_parity.vhd"
+#    "$origin_dir/rtl/VHDL_UART/src/UART/uart_tx.vhd"
+#    "$origin_dir/rtl/VHDL_UART/src/UART/uart_rx.vhd"
+#    "$origin_dir/rtl/VHDL_UART/src/UART.vhd"
+#    "$origin_dir/rtl/VHDL_debounce/tb/tb_debounce.vhd"
+#    "$origin_dir/cons/constrained.xdc"
 #
 #*****************************************************************************************
 
@@ -44,16 +44,16 @@
 proc checkRequiredFiles { origin_dir} {
   set status true
   set files [list \
-   "E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/rtl/VHDL_debounce/src/debounce.vhd" \
-   "E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/ip/Zynq_block_design/hdl/Zynq_block_design_wrapper.vhd" \
-   "E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART/uart_clk_div.vhd" \
-   "E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART/uart_debounce.vhd" \
-   "E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART/uart_parity.vhd" \
-   "E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART/uart_tx.vhd" \
-   "E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART/uart_rx.vhd" \
-   "E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART.vhd" \
-   "E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/rtl/VHDL_debounce/tb/tb_debounce.vhd" \
-   "E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/cons/constrained.xdc" \
+   "$origin_dir/rtl/VHDL_debounce/src/debounce.vhd" \
+   "$origin_dir/ip/Zynq_block_design/hdl/Zynq_block_design_wrapper.vhd" \
+   "$origin_dir/rtl/VHDL_UART/src/UART/uart_clk_div.vhd" \
+   "$origin_dir/rtl/VHDL_UART/src/UART/uart_debounce.vhd" \
+   "$origin_dir/rtl/VHDL_UART/src/UART/uart_parity.vhd" \
+   "$origin_dir/rtl/VHDL_UART/src/UART/uart_tx.vhd" \
+   "$origin_dir/rtl/VHDL_UART/src/UART/uart_rx.vhd" \
+   "$origin_dir/rtl/VHDL_UART/src/UART.vhd" \
+   "$origin_dir/rtl/VHDL_debounce/tb/tb_debounce.vhd" \
+   "$origin_dir/cons/constrained.xdc" \
   ]
   foreach ifile $files {
     if { ![file isfile $ifile] } {
@@ -65,7 +65,7 @@ proc checkRequiredFiles { origin_dir} {
   return $status
 }
 # Set the reference directory for source file relative paths (by default the value is script directory path)
-set origin_dir "E:/Projects/Eurobot/Zynq_HW_Eurobot_2025/project_1"
+set origin_dir [file normalize [file dirname [info script]]]
 
 # Use origin directory path location variable, if specified in the tcl shell
 if { [info exists ::origin_dir_loc] } {
@@ -177,60 +177,60 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
- [file normalize "${origin_dir}/../../vivado_clean_project_labonnecettefois/rtl/VHDL_debounce/src/debounce.vhd"] \
- [file normalize "${origin_dir}/../../vivado_clean_project_labonnecettefois/ip/Zynq_block_design/hdl/Zynq_block_design_wrapper.vhd"] \
- [file normalize "${origin_dir}/../../vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART/uart_clk_div.vhd"] \
- [file normalize "${origin_dir}/../../vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART/uart_debounce.vhd"] \
- [file normalize "${origin_dir}/../../vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART/uart_parity.vhd"] \
- [file normalize "${origin_dir}/../../vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART/uart_tx.vhd"] \
- [file normalize "${origin_dir}/../../vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART/uart_rx.vhd"] \
- [file normalize "${origin_dir}/../../vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART.vhd"] \
- [file normalize "${origin_dir}/../../vivado_clean_project_labonnecettefois/rtl/VHDL_debounce/tb/tb_debounce.vhd"] \
+ [file normalize "${origin_dir}/rtl/VHDL_debounce/src/debounce.vhd"] \
+ [file normalize "${origin_dir}/ip/Zynq_block_design/hdl/Zynq_block_design_wrapper.vhd"] \
+ [file normalize "${origin_dir}/rtl/VHDL_UART/src/UART/uart_clk_div.vhd"] \
+ [file normalize "${origin_dir}/rtl/VHDL_UART/src/UART/uart_debounce.vhd"] \
+ [file normalize "${origin_dir}/rtl/VHDL_UART/src/UART/uart_parity.vhd"] \
+ [file normalize "${origin_dir}/rtl/VHDL_UART/src/UART/uart_tx.vhd"] \
+ [file normalize "${origin_dir}/rtl/VHDL_UART/src/UART/uart_rx.vhd"] \
+ [file normalize "${origin_dir}/rtl/VHDL_UART/src/UART.vhd"] \
+ [file normalize "${origin_dir}/rtl/VHDL_debounce/tb/tb_debounce.vhd"] \
 ]
 add_files -norecurse -fileset $obj $files
 
 # Set 'sources_1' fileset file properties for remote files
-set file "$origin_dir/../../vivado_clean_project_labonnecettefois/rtl/VHDL_debounce/src/debounce.vhd"
+set file "$origin_dir/rtl/VHDL_debounce/src/debounce.vhd"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "file_type" -value "VHDL" -objects $file_obj
 
-set file "$origin_dir/../../vivado_clean_project_labonnecettefois/ip/Zynq_block_design/hdl/Zynq_block_design_wrapper.vhd"
+set file "$origin_dir/ip/Zynq_block_design/hdl/Zynq_block_design_wrapper.vhd"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "file_type" -value "VHDL" -objects $file_obj
 
-set file "$origin_dir/../../vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART/uart_clk_div.vhd"
+set file "$origin_dir/rtl/VHDL_UART/src/UART/uart_clk_div.vhd"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "file_type" -value "VHDL" -objects $file_obj
 
-set file "$origin_dir/../../vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART/uart_debounce.vhd"
+set file "$origin_dir/rtl/VHDL_UART/src/UART/uart_debounce.vhd"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "file_type" -value "VHDL" -objects $file_obj
 
-set file "$origin_dir/../../vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART/uart_parity.vhd"
+set file "$origin_dir/rtl/VHDL_UART/src/UART/uart_parity.vhd"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "file_type" -value "VHDL" -objects $file_obj
 
-set file "$origin_dir/../../vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART/uart_tx.vhd"
+set file "$origin_dir/rtl/VHDL_UART/src/UART/uart_tx.vhd"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "file_type" -value "VHDL" -objects $file_obj
 
-set file "$origin_dir/../../vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART/uart_rx.vhd"
+set file "$origin_dir/rtl/VHDL_UART/src/UART/uart_rx.vhd"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "file_type" -value "VHDL" -objects $file_obj
 
-set file "$origin_dir/../../vivado_clean_project_labonnecettefois/rtl/VHDL_UART/src/UART.vhd"
+set file "$origin_dir/rtl/VHDL_UART/src/UART.vhd"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "file_type" -value "VHDL" -objects $file_obj
 
-set file "$origin_dir/../../vivado_clean_project_labonnecettefois/rtl/VHDL_debounce/tb/tb_debounce.vhd"
+set file "$origin_dir/rtl/VHDL_debounce/tb/tb_debounce.vhd"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property -name "file_type" -value "VHDL" -objects $file_obj
@@ -253,9 +253,9 @@ if {[string equal [get_filesets -quiet constrs_1] ""]} {
 set obj [get_filesets constrs_1]
 
 # Add/Import constrs file and set constrs file properties
-set file "[file normalize "$origin_dir/../../vivado_clean_project_labonnecettefois/cons/constrained.xdc"]"
+set file "[file normalize "$origin_dir/cons/constrained.xdc"]"
 set file_added [add_files -norecurse -fileset $obj [list $file]]
-set file "$origin_dir/../../vivado_clean_project_labonnecettefois/cons/constrained.xdc"
+set file "$origin_dir/cons/constrained.xdc"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets constrs_1] [list "*$file"]]
 set_property -name "file_type" -value "XDC" -objects $file_obj
@@ -290,22 +290,22 @@ set obj [get_filesets utils_1]
 
 # Adding sources referenced in BDs, if not already added
 if { [get_files debounce.vhd] == "" } {
-  import_files -quiet -fileset sources_1 E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/rtl/VHDL_debounce/src/debounce.vhd
+  import_files -quiet -fileset sources_1 $origin_dir/rtl/VHDL_debounce/src/debounce.vhd
 }
 if { [get_files debounce.vhd] == "" } {
-  import_files -quiet -fileset sources_1 E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/rtl/VHDL_debounce/src/debounce.vhd
+  import_files -quiet -fileset sources_1 $origin_dir/rtl/VHDL_debounce/src/debounce.vhd
 }
 if { [get_files debounce.vhd] == "" } {
-  import_files -quiet -fileset sources_1 E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/rtl/VHDL_debounce/src/debounce.vhd
+  import_files -quiet -fileset sources_1 $origin_dir/rtl/VHDL_debounce/src/debounce.vhd
 }
 if { [get_files debounce.vhd] == "" } {
-  import_files -quiet -fileset sources_1 E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/rtl/VHDL_debounce/src/debounce.vhd
+  import_files -quiet -fileset sources_1 $origin_dir/rtl/VHDL_debounce/src/debounce.vhd
 }
 if { [get_files debounce.vhd] == "" } {
-  import_files -quiet -fileset sources_1 E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/rtl/VHDL_debounce/src/debounce.vhd
+  import_files -quiet -fileset sources_1 $origin_dir/rtl/VHDL_debounce/src/debounce.vhd
 }
 if { [get_files debounce.vhd] == "" } {
-  import_files -quiet -fileset sources_1 E:/Projects/Eurobot/vivado_clean_project_labonnecettefois/rtl/VHDL_debounce/src/debounce.vhd
+  import_files -quiet -fileset sources_1 $origin_dir/rtl/VHDL_debounce/src/debounce.vhd
 }
 
 
