@@ -18,15 +18,14 @@ Le dépôt suit l'arborescence suivante :
 - Python 3 : notre script de nettoyage pre commit l'utilise
 - (Optionnel) Questa Sim (pour les simulations Cocotb)
 
-<div style="border-left: 4px solid #f32112; padding: 10px; background: #fff8e1;">
-<strong>⚠️ Attention</strong><br><br>
-
-Après avoir cloné ce dépôt sur ton PC, tu dois dire à Git d'utiliser nos scripts automatisés (les hooks) partagés avec l'équipe.
-
-Ouvre ton terminal Git (Git Bash sous Windows, ou le terminal Linux/Mac) à la racine de ce projet et exécute cette commande :
-
-<pre><code>git config core.hooksPath .githooks</code></pre>
-</div>
+> [!WARNING]
+> Après avoir cloné ce dépôt sur ton PC, tu dois dire à Git d'utiliser nos scripts automatisés (les hooks) partagés avec l'équipe.
+>
+> Ouvre ton terminal Git (Git Bash sous Windows, ou le terminal Linux/Mac) à la racine de ce projet et exécute :
+>
+> ```bash
+> git config core.hooksPath .githooks
+> ```
 
 ## Mise en Place du Projet
 
