@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+import os
+import sys
+
+# Nom du fichier à nettoyer
+TCL_FILE = "rebuild.tcl"
+
+if not os.path.exists(TCL_FILE):
+    sys.exit(0) # Si le fichier n'existe pas, on laisse le commit passer normalement
+
+print("[Pre-commit Hook] Nettoyage des chemins absolus Vivado...")
+
+# 1. Auto-détection du chemin absolu de la racine du projet sur CE PC
+# os.getcwd() renvoie le dossier où est lancé le commit (la racine Git)
+repo_root = os.path.abspath(os.getcwd()).replace('\\', '/')
+
+# Sous Windows, Vivado force la lettre du lecteur en majuscule (ex: C:/ au lieu de c:/)
+if os.name == 'nt':
+    repo_root = repo_root[0].upper() + repo_root[1:]
+
+# 2. Lecture du fichier
+with open(TCL_FILE, 'r', encoding='utf-8') as f:
+    content = f.read()
+
+# 3. Remplacement dynamique
+# Il va chercher le chemin de la personne (ex: D:/Projets/Eurobot) et le remplacer
+new_content = content.replace(repo_root, "$origin_dir")
+
+# 4. Sauvegarde
+with open(TCL_FILE, 'w', encoding='utf-8', newline='\n') as f:
+    f.write(new_content)
+
+# 5. On dit à Git d'ajouter la version modifiée au commit en cours
+os.system(f"git add {TCL_FILE}")
+print("[Pre-commit Hook] Nettoyage terminé avec succès !")
