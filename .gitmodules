@@ -4,3 +4,6 @@
 [submodule "rtl/VHDL_UART"]
 	path = rtl/VHDL_UART
 	url = https://github.com/Les-opossums/VHDL_UART.git
+[submodule "rtl/ws2812b_AXI_controller"]
+	path = rtl/ws2812b_AXI_controller
+	url = https://github.com/Les-opossums/ws2812b_AXI_controller.git
