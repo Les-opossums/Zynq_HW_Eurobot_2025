@@ -65,4 +65,43 @@ Un exemple de banc de test utilisant **Cocotb** est disponible.
 ## Export pour le Software
 Après la génération du bitstream, il faut d'exporter le matériel : `File -> Export -> Export Hardware -> Include Bitstream` pour générer le fichier **.xsa** nécessaire au développement sur la partie **PS**.
 
-###
+#
+#
+
+
+#  Générateur de Mapping Matériel Vivado (Hardware Handoff)
+
+Ce script Tcl (`generate_hw_report.tcl`) extrait automatiquement la configuration matérielle d'un projet Xilinx Vivado (Block Design et fichiers de contraintes) afin de générer un document Markdown lisible par les humains.
+
+L'objectif est de fournir à l'équipe **Software/Firmware** un **Memory Map** toujours à jour ainsi qu'une vue claire du routage des périphériques, sans qu'elle ait besoin d'ouvrir Vivado.
+
+## Fonctionnalités
+
+Le script parcourt le design ouvert et génère un fichier `.md` contenant les sections suivantes :
+
+1. **Memory Map (AXI)** : liste des périphériques, leurs adresses de base et leur taille.
+2. **Configuration AXI GPIO** : largeur des bus, directions (Entrée / Sortie / Mixte) et nom des ports connectés.
+3. **Configuration EMIO Zynq** : routage des signaux PS (*Processing System*) vers le PL (*Programmable Logic*), incluant les GPIO_I/O/T ainsi que les bus (SPI, I²C, CAN).
+4. **Liste des ports externes (I/O)** : tableau récapitulatif de tous les ports du Block Design, croisés avec les **broches physiques (FPGA Pins)** lues dynamiquement depuis les fichiers `.xdc` du projet.
+
+---
+
+## Utilisation du script (mode graphique - GUI)
+
+Si vous travaillez directement dans l'interface graphique de Vivado :
+
+1. Ouvrez votre projet Vivado (`.xpr`).
+2. Ouvrez votre Block Design (par exemple `design_1.bd`).
+3. Dans la console Tcl située en bas de la fenêtre Vivado, sourcez le script :
+
+```tcl
+source chemin/vers/generate_hw_report.tcl
+```
+
+4. Exécutez ensuite la fonction en spécifiant le nom du fichier de sortie souhaité :
+
+```tcl
+export_hardware_map "hardware_map_software_team.md"
+```
+
+Le fichier `hardware_map_software_team.md` sera créé dans le répertoire courant de Vivado (généralement à la racine du projet ou dans le dossier d'exécution).
