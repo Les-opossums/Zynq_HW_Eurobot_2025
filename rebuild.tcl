@@ -27,19 +27,19 @@
 #
 # 3. The following remote source files that were added to the original project:-
 #
-#    "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/VHDL_debounce/src/debounce.vhd"
-#    "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/ws2812b_AXI_controller/src/ws2812b_controller.vhd"
-#    "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/tri_state/src/tri_state.vhd"
-#    "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/ws2812b_AXI_controller/src/dram.vhd"
-#    "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/ip/Zynq_block_design/hdl/Zynq_block_design_wrapper.vhd"
-#    "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/VHDL_UART/src/UART/uart_clk_div.vhd"
-#    "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/VHDL_UART/src/UART/uart_debounce.vhd"
-#    "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/VHDL_UART/src/UART/uart_parity.vhd"
-#    "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/VHDL_UART/src/UART/uart_tx.vhd"
-#    "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/VHDL_UART/src/UART/uart_rx.vhd"
-#    "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/VHDL_UART/src/UART.vhd"
-#    "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/VHDL_debounce/tb/tb_debounce.vhd"
-#    "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/cons/constrained.xdc"
+#    "$origin_dir/rtl/VHDL_debounce/src/debounce.vhd"
+#    "$origin_dir/rtl/ws2812b_AXI_controller/src/ws2812b_controller.vhd"
+#    "$origin_dir/rtl/tri_state/src/tri_state.vhd"
+#    "$origin_dir/rtl/ws2812b_AXI_controller/src/dram.vhd"
+#    "$origin_dir/ip/Zynq_block_design/hdl/Zynq_block_design_wrapper.vhd"
+#    "$origin_dir/rtl/VHDL_UART/src/UART/uart_clk_div.vhd"
+#    "$origin_dir/rtl/VHDL_UART/src/UART/uart_debounce.vhd"
+#    "$origin_dir/rtl/VHDL_UART/src/UART/uart_parity.vhd"
+#    "$origin_dir/rtl/VHDL_UART/src/UART/uart_tx.vhd"
+#    "$origin_dir/rtl/VHDL_UART/src/UART/uart_rx.vhd"
+#    "$origin_dir/rtl/VHDL_UART/src/UART.vhd"
+#    "$origin_dir/rtl/VHDL_debounce/tb/tb_debounce.vhd"
+#    "$origin_dir/cons/constrained.xdc"
 #
 #*****************************************************************************************
 
@@ -47,19 +47,19 @@
 proc checkRequiredFiles { origin_dir} {
   set status true
   set files [list \
-   "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/VHDL_debounce/src/debounce.vhd" \
-   "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/ws2812b_AXI_controller/src/ws2812b_controller.vhd" \
-   "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/tri_state/src/tri_state.vhd" \
-   "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/ws2812b_AXI_controller/src/dram.vhd" \
-   "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/ip/Zynq_block_design/hdl/Zynq_block_design_wrapper.vhd" \
-   "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/VHDL_UART/src/UART/uart_clk_div.vhd" \
-   "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/VHDL_UART/src/UART/uart_debounce.vhd" \
-   "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/VHDL_UART/src/UART/uart_parity.vhd" \
-   "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/VHDL_UART/src/UART/uart_tx.vhd" \
-   "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/VHDL_UART/src/UART/uart_rx.vhd" \
-   "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/VHDL_UART/src/UART.vhd" \
-   "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/VHDL_debounce/tb/tb_debounce.vhd" \
-   "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/cons/constrained.xdc" \
+   "$origin_dir/rtl/VHDL_debounce/src/debounce.vhd" \
+   "$origin_dir/rtl/ws2812b_AXI_controller/src/ws2812b_controller.vhd" \
+   "$origin_dir/rtl/tri_state/src/tri_state.vhd" \
+   "$origin_dir/rtl/ws2812b_AXI_controller/src/dram.vhd" \
+   "$origin_dir/ip/Zynq_block_design/hdl/Zynq_block_design_wrapper.vhd" \
+   "$origin_dir/rtl/VHDL_UART/src/UART/uart_clk_div.vhd" \
+   "$origin_dir/rtl/VHDL_UART/src/UART/uart_debounce.vhd" \
+   "$origin_dir/rtl/VHDL_UART/src/UART/uart_parity.vhd" \
+   "$origin_dir/rtl/VHDL_UART/src/UART/uart_tx.vhd" \
+   "$origin_dir/rtl/VHDL_UART/src/UART/uart_rx.vhd" \
+   "$origin_dir/rtl/VHDL_UART/src/UART.vhd" \
+   "$origin_dir/rtl/VHDL_debounce/tb/tb_debounce.vhd" \
+   "$origin_dir/cons/constrained.xdc" \
   ]
   foreach ifile $files {
     if { ![file isfile $ifile] } {
@@ -71,7 +71,7 @@ proc checkRequiredFiles { origin_dir} {
   return $status
 }
 # Set the reference directory for source file relative paths (by default the value is script directory path)
-set origin_dir "C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/project_1"
+set origin_dir "$origin_dir/project_1"
 
 # Use origin directory path location variable, if specified in the tcl shell
 if { [info exists ::origin_dir_loc] } {
@@ -314,31 +314,31 @@ set obj [get_filesets utils_1]
 
 # Adding sources referenced in BDs, if not already added
 if { [get_files debounce.vhd] == "" } {
-  import_files -quiet -fileset sources_1 C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/VHDL_debounce/src/debounce.vhd
+  import_files -quiet -fileset sources_1 $origin_dir/rtl/VHDL_debounce/src/debounce.vhd
 }
 if { [get_files debounce.vhd] == "" } {
-  import_files -quiet -fileset sources_1 C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/VHDL_debounce/src/debounce.vhd
+  import_files -quiet -fileset sources_1 $origin_dir/rtl/VHDL_debounce/src/debounce.vhd
 }
 if { [get_files debounce.vhd] == "" } {
-  import_files -quiet -fileset sources_1 C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/VHDL_debounce/src/debounce.vhd
+  import_files -quiet -fileset sources_1 $origin_dir/rtl/VHDL_debounce/src/debounce.vhd
 }
 if { [get_files debounce.vhd] == "" } {
-  import_files -quiet -fileset sources_1 C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/VHDL_debounce/src/debounce.vhd
+  import_files -quiet -fileset sources_1 $origin_dir/rtl/VHDL_debounce/src/debounce.vhd
 }
 if { [get_files debounce.vhd] == "" } {
-  import_files -quiet -fileset sources_1 C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/VHDL_debounce/src/debounce.vhd
+  import_files -quiet -fileset sources_1 $origin_dir/rtl/VHDL_debounce/src/debounce.vhd
 }
 if { [get_files debounce.vhd] == "" } {
-  import_files -quiet -fileset sources_1 C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/VHDL_debounce/src/debounce.vhd
+  import_files -quiet -fileset sources_1 $origin_dir/rtl/VHDL_debounce/src/debounce.vhd
 }
 if { [get_files ws2812b_controller.vhd] == "" } {
-  import_files -quiet -fileset sources_1 C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/ws2812b_AXI_controller/src/ws2812b_controller.vhd
+  import_files -quiet -fileset sources_1 $origin_dir/rtl/ws2812b_AXI_controller/src/ws2812b_controller.vhd
 }
 if { [get_files tri_state.vhd] == "" } {
-  import_files -quiet -fileset sources_1 C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/tri_state/src/tri_state.vhd
+  import_files -quiet -fileset sources_1 $origin_dir/rtl/tri_state/src/tri_state.vhd
 }
 if { [get_files dram.vhd] == "" } {
-  import_files -quiet -fileset sources_1 C:/Users/marti/Documents/Robot/1-SOFTWARE/Zynq_HW_Eurobot_2025/rtl/ws2812b_AXI_controller/src/dram.vhd
+  import_files -quiet -fileset sources_1 $origin_dir/rtl/ws2812b_AXI_controller/src/dram.vhd
 }
 
 
