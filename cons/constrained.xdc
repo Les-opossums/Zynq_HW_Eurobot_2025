@@ -201,8 +201,10 @@ set_property PACKAGE_PIN T15 [get_ports IO_2]
 set_property IOSTANDARD LVCMOS33 [get_ports IO_2]
 set_property PACKAGE_PIN T14 [get_ports IO_3]
 set_property IOSTANDARD LVCMOS33 [get_ports IO_3]
-# set_property PACKAGE_PIN W13 [get_ports IO_4]
-# set_property IOSTANDARD LVCMOS33 [get_ports IO_4]
+
+
+set_property PACKAGE_PIN W13 [get_ports LIDAR_LD19_0]
+set_property IOSTANDARD LVCMOS33 [get_ports LIDAR_LD19_0]
 
 #IO_5
 #set_property PACKAGE_PIN V12 [get_ports high_switch_elevator] 
