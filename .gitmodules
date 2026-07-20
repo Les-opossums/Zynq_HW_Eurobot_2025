@@ -10,3 +10,6 @@
 [submodule "rtl/tri_state"]
 	path = rtl/tri_state
 	url = https://github.com/Les-opossums/VHDL_tri_state.git
+[submodule "rtl/ld19_driver"]
+	path = rtl/ld19_driver
+	url = https://github.com/Les-opossums/VHDL_LD19_Driver.git
