@@ -1,0 +1,4 @@
+# Dependances Python de l'environnement de test cocotb.
+# Installation : pip install -r ivv_fpga_cocotb/requirements.txt
+cocotb>=2.0
+pytest>=7.0

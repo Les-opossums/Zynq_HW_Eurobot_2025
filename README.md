@@ -58,10 +58,62 @@ Problème potentiel : Si le script ne se génère pas du tout au bon endroit (C:
 ### Etape 2 : 
 
 
-## Simulations Cocotb (Work In Progress)
-Un exemple de banc de test utilisant **Cocotb** est disponible.
+## Simulations Cocotb
 
-**!IMPORTANT** Actuellement, le setup repose sur Questa (Altera Starter Edition). Ce simulateur est très lourd et sa license est chiante à gérer ... Donc je pense passer sur un autre simulateur (GHDL ?) à terme.
+L'environnement de test se trouve dans `ivv_fpga_cocotb/`. Chaque module RTL
+custom dispose d'un banc de test **auto-vérifiant** (avec assertions) :
+
+| Test                            | DUT (module)          | Ce qui est vérifié |
+|---------------------------------|-----------------------|--------------------|
+| `unit_ivv_sc001_debounce.py`    | `debounce_filter`     | rejet des rebonds courts, stabilisation après `DEBOUNCE_TIME`, reset async |
+| `unit_ivv_sc002_tri_state.py`   | `uart_half_duplex_io` | multiplexage DIR/TX/RX, haute impédance en réception |
+| `unit_ivv_sc003_uart_tx.py`     | `UART_TX`             | trame série émise décodée et comparée à l'octet (start/data/stop) |
+| `unit_ivv_sc004_uart_rx.py`     | `UART_RX`             | octet reçu restitué sur DOUT, `FRAME_ERROR` sur stop bit invalide |
+| `unit_ivv_sc005_ws2812b.py`     | `ws2812b_controller`  | décodage des timings T0H/T1H et vérification des couleurs |
+
+Fichiers de support :
+- `test_runner.py` — runner cocotb multi-simulateur (Questa **ou** GHDL) ;
+- `models.py` — modèles de référence Python (encodage/décodage UART, décodeur WS2812B) ;
+- `test_models.py` — tests **purs Python** des modèles (`pytest`, sans simulateur) ;
+- `run_all.py` — lance tous les bancs de test à la suite.
+
+### Prérequis
+```bash
+pip install -r ivv_fpga_cocotb/requirements.txt   # cocotb >= 2.0, pytest
+```
+Plus un simulateur VHDL : **Questa** (Altera Starter) ou **GHDL** (libre).
+
+### Choix du simulateur
+Le simulateur est sélectionné par la variable d'environnement `SIM`
+(`questa` par défaut, ou `ghdl`, `nvc`).
+
+### Lancer les tests
+```bash
+# Un seul test, GHDL, en ligne de commande
+SIM=ghdl python ivv_fpga_cocotb/unit_ivv_sc001_debounce.py
+
+# Un seul test, Questa, avec la GUI : passer gui=True dans le bloc __main__
+
+# Toute la suite
+SIM=ghdl python ivv_fpga_cocotb/run_all.py
+
+# Valider uniquement les modèles de référence (aucun simulateur requis)
+pytest ivv_fpga_cocotb/test_models.py -v
+```
+
+> [!NOTE]
+> Pour garder les simulations rapides, certains bancs surchargent des paramètres
+> via des *generics* : `DEBOUNCE_TIME` (réduit de 2 000 000 à 16 cycles) et
+> `LED_COUNT` du contrôleur WS2812B (réduit de 44 à 3). `DEBOUNCE_TIME` a été
+> rendu générique dans `rtl/VHDL_debounce/src/debounce.vhd` (valeur par défaut
+> inchangée) — pense à répercuter ce changement dans le sous-module amont
+> `Les-opossums/VHDL_debounce` lors du prochain commit.
+
+> [!NOTE]
+> Le banc WS2812B documente un comportement RTL à surveiller : le bit 0 (LSB) de
+> chaque LED est échantillonné un cycle avant le rechargement de `i_pixData`
+> (`current_pix_data(s_num_bit)`). Les tests utilisent donc une couleur
+> constante avec bit 0 à 0, ce qui rend la trame exacte sur toutes les LEDs.
 ## Export pour le Software
 Après la génération du bitstream, il faut d'exporter le matériel : `File -> Export -> Export Hardware -> Include Bitstream` pour générer le fichier **.xsa** nécessaire au développement sur la partie **PS**.
 
