@@ -101,19 +101,6 @@ SIM=ghdl python ivv_fpga_cocotb/run_all.py
 pytest ivv_fpga_cocotb/test_models.py -v
 ```
 
-> [!NOTE]
-> Pour garder les simulations rapides, certains bancs surchargent des paramètres
-> via des *generics* : `DEBOUNCE_TIME` (réduit de 2 000 000 à 16 cycles) et
-> `LED_COUNT` du contrôleur WS2812B (réduit de 44 à 3). `DEBOUNCE_TIME` a été
-> rendu générique dans `rtl/VHDL_debounce/src/debounce.vhd` (valeur par défaut
-> inchangée) — pense à répercuter ce changement dans le sous-module amont
-> `Les-opossums/VHDL_debounce` lors du prochain commit.
-
-> [!NOTE]
-> Le banc WS2812B documente un comportement RTL à surveiller : le bit 0 (LSB) de
-> chaque LED est échantillonné un cycle avant le rechargement de `i_pixData`
-> (`current_pix_data(s_num_bit)`). Les tests utilisent donc une couleur
-> constante avec bit 0 à 0, ce qui rend la trame exacte sur toutes les LEDs.
 ## Export pour le Software
 Après la génération du bitstream, il faut d'exporter le matériel : `File -> Export -> Export Hardware -> Include Bitstream` pour générer le fichier **.xsa** nécessaire au développement sur la partie **PS**.
 
